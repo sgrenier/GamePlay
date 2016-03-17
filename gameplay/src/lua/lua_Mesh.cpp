@@ -661,6 +661,42 @@ static int lua_Mesh_isDynamic(lua_State* state)
     return 0;
 }
 
+static int lua_Mesh_mapVertexBuffer(lua_State* state)
+{
+    // Get the number of parameters.
+    int paramCount = lua_gettop(state);
+
+    // Attempt to match the parameters to a valid binding.
+    switch (paramCount)
+    {
+        case 2:
+        {
+            if ((lua_type(state, 1) == LUA_TUSERDATA) &&
+                lua_type(state, 2) == LUA_TNUMBER)
+            {
+                // Get parameter 1 off the stack.
+                Mesh::MapAccess param1 = (Mesh::MapAccess)luaL_checkint(state, 2);
+
+                Mesh* instance = getInstance(state);
+                instance->mapVertexBuffer(param1);
+                
+                return 0;
+            }
+
+            lua_pushstring(state, "lua_Mesh_mapVertexBuffer - Failed to match the given parameters to a valid function signature.");
+            lua_error(state);
+            break;
+        }
+        default:
+        {
+            lua_pushstring(state, "Invalid number of parameters (expected 2).");
+            lua_error(state);
+            break;
+        }
+    }
+    return 0;
+}
+
 static int lua_Mesh_release(lua_State* state)
 {
     // Get the number of parameters.
@@ -806,90 +842,6 @@ static int lua_Mesh_setPrimitiveType(lua_State* state)
         default:
         {
             lua_pushstring(state, "Invalid number of parameters (expected 2).");
-            lua_error(state);
-            break;
-        }
-    }
-    return 0;
-}
-
-static int lua_Mesh_setVertexData(lua_State* state)
-{
-    // Get the number of parameters.
-    int paramCount = lua_gettop(state);
-
-    // Attempt to match the parameters to a valid binding.
-    switch (paramCount)
-    {
-        case 2:
-        {
-            if ((lua_type(state, 1) == LUA_TUSERDATA) &&
-                (lua_type(state, 2) == LUA_TTABLE || lua_type(state, 2) == LUA_TLIGHTUSERDATA))
-            {
-                // Get parameter 1 off the stack.
-                gameplay::ScriptUtil::LuaArray<float> param1 = gameplay::ScriptUtil::getFloatPointer(2);
-
-                Mesh* instance = getInstance(state);
-                instance->setVertexData(param1);
-                
-                return 0;
-            }
-
-            lua_pushstring(state, "lua_Mesh_setVertexData - Failed to match the given parameters to a valid function signature.");
-            lua_error(state);
-            break;
-        }
-        case 3:
-        {
-            if ((lua_type(state, 1) == LUA_TUSERDATA) &&
-                (lua_type(state, 2) == LUA_TTABLE || lua_type(state, 2) == LUA_TLIGHTUSERDATA) &&
-                lua_type(state, 3) == LUA_TNUMBER)
-            {
-                // Get parameter 1 off the stack.
-                gameplay::ScriptUtil::LuaArray<float> param1 = gameplay::ScriptUtil::getFloatPointer(2);
-
-                // Get parameter 2 off the stack.
-                unsigned int param2 = (unsigned int)luaL_checkunsigned(state, 3);
-
-                Mesh* instance = getInstance(state);
-                instance->setVertexData(param1, param2);
-                
-                return 0;
-            }
-
-            lua_pushstring(state, "lua_Mesh_setVertexData - Failed to match the given parameters to a valid function signature.");
-            lua_error(state);
-            break;
-        }
-        case 4:
-        {
-            if ((lua_type(state, 1) == LUA_TUSERDATA) &&
-                (lua_type(state, 2) == LUA_TTABLE || lua_type(state, 2) == LUA_TLIGHTUSERDATA) &&
-                lua_type(state, 3) == LUA_TNUMBER &&
-                lua_type(state, 4) == LUA_TNUMBER)
-            {
-                // Get parameter 1 off the stack.
-                gameplay::ScriptUtil::LuaArray<float> param1 = gameplay::ScriptUtil::getFloatPointer(2);
-
-                // Get parameter 2 off the stack.
-                unsigned int param2 = (unsigned int)luaL_checkunsigned(state, 3);
-
-                // Get parameter 3 off the stack.
-                unsigned int param3 = (unsigned int)luaL_checkunsigned(state, 4);
-
-                Mesh* instance = getInstance(state);
-                instance->setVertexData(param1, param2, param3);
-                
-                return 0;
-            }
-
-            lua_pushstring(state, "lua_Mesh_setVertexData - Failed to match the given parameters to a valid function signature.");
-            lua_error(state);
-            break;
-        }
-        default:
-        {
-            lua_pushstring(state, "Invalid number of parameters (expected 2, 3 or 4).");
             lua_error(state);
             break;
         }
@@ -1462,6 +1414,41 @@ static int lua_Mesh_static_createQuadFullscreen(lua_State* state)
     return 0;
 }
 
+static int lua_Mesh_unmapVertexBuffer(lua_State* state)
+{
+    // Get the number of parameters.
+    int paramCount = lua_gettop(state);
+
+    // Attempt to match the parameters to a valid binding.
+    switch (paramCount)
+    {
+        case 1:
+        {
+            if ((lua_type(state, 1) == LUA_TUSERDATA))
+            {
+                Mesh* instance = getInstance(state);
+                bool result = instance->unmapVertexBuffer();
+
+                // Push the return value onto the stack.
+                lua_pushboolean(state, result);
+
+                return 1;
+            }
+
+            lua_pushstring(state, "lua_Mesh_unmapVertexBuffer - Failed to match the given parameters to a valid function signature.");
+            lua_error(state);
+            break;
+        }
+        default:
+        {
+            lua_pushstring(state, "Invalid number of parameters (expected 1).");
+            lua_error(state);
+            break;
+        }
+    }
+    return 0;
+}
+
 // Provides support for conversion to all known relative types of Mesh
 static void* __convertTo(void* ptr, const char* typeName)
 {
@@ -1524,11 +1511,12 @@ void luaRegister_Mesh()
         {"getVertexFormat", lua_Mesh_getVertexFormat},
         {"getVertexSize", lua_Mesh_getVertexSize},
         {"isDynamic", lua_Mesh_isDynamic},
+        {"mapVertexBuffer", lua_Mesh_mapVertexBuffer},
         {"release", lua_Mesh_release},
         {"setBoundingBox", lua_Mesh_setBoundingBox},
         {"setBoundingSphere", lua_Mesh_setBoundingSphere},
         {"setPrimitiveType", lua_Mesh_setPrimitiveType},
-        {"setVertexData", lua_Mesh_setVertexData},
+        {"unmapVertexBuffer", lua_Mesh_unmapVertexBuffer},
         {"to", lua_Mesh_to},
         {NULL, NULL}
     };

@@ -741,6 +741,15 @@ void luaRegister_lua_Global()
         gameplay::ScriptUtil::registerEnumValue(Mesh::INDEX32, "INDEX32", scopePath);
     }
 
+    // Register enumeration Mesh::MapAccess.
+    {
+        std::vector<std::string> scopePath;
+        scopePath.push_back("Mesh");
+        gameplay::ScriptUtil::registerEnumValue(Mesh::MAP_READ_ONLY, "MAP_READ_ONLY", scopePath);
+        gameplay::ScriptUtil::registerEnumValue(Mesh::MAP_WRITE_ONLY, "MAP_WRITE_ONLY", scopePath);
+        gameplay::ScriptUtil::registerEnumValue(Mesh::MAP_READ_WRITE, "MAP_READ_WRITE", scopePath);
+    }
+
     // Register enumeration Mesh::PrimitiveType.
     {
         std::vector<std::string> scopePath;
